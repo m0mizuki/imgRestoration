@@ -14,8 +14,13 @@ class ImgProc:
 
     def binary(self):
         ret,img_bin=cv2.threshold(self.img,100,255,cv2.THRESH_BINARY)
-        return img_bin
+        self.img=img_bin
+        return self.img
 
+
+    def rand_noise(self):
+        #self.rand_noise(self,REVERSAL_P)
+        print("aaa")
 
     def rand_noise(self,p):
         for i in  range(self.h):
@@ -25,6 +30,4 @@ class ImgProc:
                     self.img[i][j][0]=rev_val
                     self.img[i][j][1]=rev_val
                     self.img[i][j][2]=rev_val
-
-    #def rand_noise(self):
-    #    self.rand_noise(REVERSAL_P)
+        return self.img

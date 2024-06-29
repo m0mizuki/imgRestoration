@@ -3,20 +3,25 @@ import copy
 
 from imgProc import ImgProc
 
+path="img/Lighthouse.bmp"
 
-ip=ImgProc("img/Lighthouse.bmp")
+img_org=ImgProc(path)
+img_bin=ImgProc(path)
 
 #2値化
-img_bin=ip.binary()
+img_bin.binary()
 
-#img_bin_cpy=copy.copy(img_bin)
+#img_bin.rand_noise().img
 
-img_bin_cpy=ip.rand_noise(1)
-
-
-cv2.imshow("portrait",ip.img)
+cv2.imshow("portrait",img_org.img)
 cv2.waitKey(0)
-cv2.imshow("portrait",img_bin)
+cv2.imshow("portrait",img_bin.img)
 cv2.waitKey(0)
-cv2.imshow("portrait",img_bin_cpy)
+
+img_org.rand_noise(0.1)
+img_bin.rand_noise()
+
+#cv2.imshow("portrait",img_org.img)
+#cv2.waitKey(0)
+cv2.imshow("portrait",img_bin.img)
 cv2.waitKey(0)
