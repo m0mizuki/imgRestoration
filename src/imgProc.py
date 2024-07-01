@@ -1,5 +1,6 @@
 import cv2
 from random import random
+import numpy as np
 #from functools import singledispatch
 
 #定数
@@ -13,13 +14,24 @@ class ImgProc:
         self.w,self.h,self.ch=self.img.shape
 
 
-    def binary(self):
+    def get_ising(self):
+        img_ising=np.zeros((self.h,self.w))
+        for i in  range(self.h):
+            for j in range(self.w):
+                if self.img[i][j][0] == 255:
+                    img_ising[i][j]=1
+                else:
+                    img_ising[i][j]=-1
+        return img_ising
+
+    
+    def to_binary(self):
         ret,img_bin=cv2.threshold(self.img,100,255,cv2.THRESH_BINARY)
         self.img=img_bin
         return self.img
 
 
-    def rand_noise(self):
+    def to_rand_noise(self):
         for i in  range(self.h):
             for j in range(self.w):
                 if REVERSAL_P > random():

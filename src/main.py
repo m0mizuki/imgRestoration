@@ -9,17 +9,18 @@ img_org=ImgProc(path)
 img_bin=ImgProc(path)
 
 #2値化
-img_bin.binary()
-
-#img_bin.rand_noise().img
+img_bin.to_binary()
 
 cv2.imshow("portrait",img_org.img)
 cv2.waitKey(0)
 cv2.imshow("portrait",img_bin.img)
 cv2.waitKey(0)
 
-img_org.rand_noise()
-img_bin.rand_noise()
+#a=img_bin.get_ising()
+#print(a)
+
+img_org.to_rand_noise()
+img_bin.to_rand_noise()
 
 cv2.imshow("portrait",img_org.img)
 cv2.waitKey(0)
