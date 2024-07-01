@@ -1,5 +1,6 @@
 import cv2
 from random import random
+#from functools import singledispatch
 
 #定数
 REVERSAL_P = 0.1
@@ -19,15 +20,12 @@ class ImgProc:
 
 
     def rand_noise(self):
-        #self.rand_noise(self,REVERSAL_P)
-        print("aaa")
-
-    def rand_noise(self,p):
         for i in  range(self.h):
             for j in range(self.w):
-                if p > random():
+                if REVERSAL_P > random():
                     rev_val = 255 - self.img[i][j][0]
                     self.img[i][j][0]=rev_val
                     self.img[i][j][1]=rev_val
                     self.img[i][j][2]=rev_val
         return self.img
+
