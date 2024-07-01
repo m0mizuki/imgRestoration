@@ -3,8 +3,8 @@ import cv2
 from imgProc import ImgProc
 from imgRes import res_inaba, get_img_bin
 
-#path = "img/Lighthouse.bmp"
-path = "img/8_8.bmp"
+path = "img/Lighthouse.bmp"
+#path = "img/8_8.bmp"
 
 #img_org = ImgProc(path)
 #cv2.imshow("portrait", img_org.img)

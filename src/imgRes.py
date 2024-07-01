@@ -3,14 +3,15 @@ import copy
 import numpy as np
 
 # 定数
-J = 0.45
-T_MAX = 10
-T_MIN = 9
+#J = 0.4
+J = 0.50
+T_MAX = 2
+T_MIN = 1
 T_DELTA = 0.1
 Q = 0.1
 K = math.log((1 - Q) / Q) / 2
-THRESHOLD = 0.000001
-#THRESHOLD = 0.01
+#THRESHOLD = 0.000001
+THRESHOLD = 1.0
 
 
 # 引数は数値のみ取得されている(参照渡しではない)
