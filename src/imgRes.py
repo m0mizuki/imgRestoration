@@ -105,7 +105,7 @@ def res_tanaka(g, h, w):
                             sum += a[i][j - 1][k]
                         if j != w - 1:
                             sum += a[i][j + 1][k]
-                        e[k] = -kd(0, s[i][j]) - TA_J * sum
+                        e[k] = -kd(k, s[i][j]) - TA_J * sum
 
                         z += math.exp(-e[k] / t)
 
