@@ -2,6 +2,8 @@ import math
 import copy
 import numpy as np
 
+import cv2
+
 # 定数
 # J = 0.4
 J = 0.50
@@ -16,8 +18,9 @@ THRESHOLD = 1.0  # 許容誤差
 # tanaka
 TA_POTS_Q = 2  # ポッツモデルの状態の数
 TA_J = 0.50
-TA_R = 1  # 反復回数
+TA_R = 3  # 反復回数
 TA_TH = 1.0  # 許容誤差
+TA_C = 1.0  # 温度の係数
 
 
 # 引数は数値のみ取得されている(参照渡しではない)
@@ -83,8 +86,8 @@ def res_tanaka(g, h, w):
                 a[i][j][k] = 1 / TA_POTS_Q
 
     for r in range(TA_R):
-        # t=(null*math.log(2))/math.log(k+2)
-        t = 1.0
+        t = TA_C * math.log(2) / math.log(r + 2)
+        # t = 1.0
 
         diff = TA_TH
         while diff >= TA_TH:
@@ -128,6 +131,10 @@ def res_tanaka(g, h, w):
                         max_a = a[i][j][k]
                         max_k = k
                 s[i][j] = max_k
+
+        tmp_img_bin=get_img_bin(s, h, w)
+        cv2.imshow("portrait", tmp_img_bin)
+        cv2.waitKey(0)
 
     return s
 
