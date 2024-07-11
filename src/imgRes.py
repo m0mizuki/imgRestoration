@@ -16,9 +16,9 @@ K = math.log((1 - Q) / Q) / 2
 THRESHOLD = 1.0  # 許容誤差
 
 # tanaka
-TA_POTS_Q = 2  # ポッツモデルの状態の数
+TA_POTS_Q = 4  # ポッツモデルの状態の数
 TA_J = 0.50
-TA_R = 1  # 反復回数
+TA_R = 3  # 反復回数
 TA_TH = 1.0  # 許容誤差
 TA_C = 1.0  # 温度の係数
 
@@ -86,12 +86,13 @@ def res_tanaka(g, h, w):
                 a[i][j][k] = 1 / TA_POTS_Q
 
     for r in range(TA_R):
+        print("開始")
+
         t = TA_C * math.log(2) / math.log(r + 2)
         # t = 1.0
 
         diff = TA_TH
         while diff >= TA_TH:
-            print(diff)
             b = np.zeros((h, w, TA_POTS_Q))
             diff = 0.0
             for i in range(h):
@@ -122,6 +123,8 @@ def res_tanaka(g, h, w):
                     for k in range(TA_POTS_Q):
                         a[i][j][k] = b[i][j][k]
 
+            print(diff)
+
         for i in range(h):
             for j in range(w):
                 max_k = 0
@@ -132,8 +135,12 @@ def res_tanaka(g, h, w):
                         max_k = k
                 s[i][j] = max_k
 
-        tmp_img_bin = get_img_bin(s, h, w)
-        cv2.imshow("portrait", tmp_img_bin)
+        tmp_img = cv2.imread("img/Lighthouse.bmp")
+        tmp_img_pots = get_img_grad(tmp_img, s, TA_POTS_Q, h, w)
+        print((r + 1), "回目終了")
+        cv2.waitKey(0)
+        cv2.imshow("portrait", tmp_img_pots)
+        print("キーを押して続行")
         cv2.waitKey(0)
 
     return s
