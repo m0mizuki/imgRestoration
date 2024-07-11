@@ -18,7 +18,7 @@ THRESHOLD = 1.0  # 許容誤差
 # tanaka
 TA_POTS_Q = 2  # ポッツモデルの状態の数
 TA_J = 0.50
-TA_R = 3  # 反復回数
+TA_R = 1  # 反復回数
 TA_TH = 1.0  # 許容誤差
 TA_C = 1.0  # 温度の係数
 
@@ -132,7 +132,7 @@ def res_tanaka(g, h, w):
                         max_k = k
                 s[i][j] = max_k
 
-        tmp_img_bin=get_img_bin(s, h, w)
+        tmp_img_bin = get_img_bin(s, h, w)
         cv2.imshow("portrait", tmp_img_bin)
         cv2.waitKey(0)
 
@@ -151,6 +151,18 @@ def get_img_bin(ising, h, w):
             img_bin[i][j][1] = val
             img_bin[i][j][2] = val
     return img_bin
+
+
+def get_img_grad(img_org, pots, p_grad, h, w):
+    img_pots = copy.copy(img_org)
+    for i in range(h):
+        for j in range(w):
+            diff = 256 / p_grad
+            val = int((pots[i][j] + 0.5) * diff) - 1
+            img_pots[i][j][0] = val
+            img_pots[i][j][1] = val
+            img_pots[i][j][2] = val
+    return img_pots
 
 
 # クロネッカーのデルタ

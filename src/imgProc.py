@@ -24,16 +24,17 @@ class ImgProc:
                 else:
                     img_ising[i][j] = -1
         return img_ising
-    
-    def get_pots(self):
-        img_ising = np.zeros((self.h, self.w))
+
+    def get_pots(self, p_grad):
+        img_pots = np.zeros((self.h, self.w))
         for i in range(self.h):
             for j in range(self.w):
-                if self.img[i][j][0] == 255:
-                    img_ising[i][j] = 1
-                else:
-                    img_ising[i][j] = 0
-        return img_ising
+                img_pots[i][j] = int((self.img[i][j][0] * p_grad / 256))
+                # if self.img[i][j][0] == 255:
+                #   img_pots[i][j] = 1
+                # else:
+                #    img_pots[i][j] = 0
+        return img_pots
 
     def get_img_size(self):
         return self.h, self.w
