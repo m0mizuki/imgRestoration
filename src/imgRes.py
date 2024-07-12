@@ -110,6 +110,7 @@ def res_tanaka(g, h, w):
                         if j != w - 1:
                             sum += a[i][j + 1][k]
                         e[k] = -kd(k, s[i][j]) - TA_J * sum
+                        # e[k] = -diff_rate(k, s[i][j], TA_POTS_Q) - TA_J * sum
 
                         z += math.exp(-e[k] / t)
 
@@ -175,3 +176,8 @@ def get_img_grad(img_org, pots, p_grad, h, w):
 # クロネッカーのデルタ
 def kd(a, b):
     return 1 if a == b else 0
+
+
+# 階調値が近いほど1に近く、遠いほど0に近くなる関数
+def diff_rate(a, b, p_grad):
+    return (p_grad - abs(a - b)) / p_grad
