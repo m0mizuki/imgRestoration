@@ -3,7 +3,7 @@
 import cv2
 
 from imgProc import ImgProc
-from imgRes import res_tanaka, get_img_bin, get_img_grad, res_heikinnka
+from imgRes import res_tanaka, get_img_bin, get_img_grad, res_heikinnka, res_median
 
 # 定数
 POTS_GRAD = 4  # n値画像,TA_POTSに等しい
@@ -54,13 +54,17 @@ print(tmp_img_pots)
 
 
 print("修復完了")
-#cv2.waitKey(0)
+# cv2.waitKey(0)
 # cv2.imshow("portrait", tmp_img_bin)
 cv2.imshow("portrait", tmp_img_pots)
 cv2.waitKey(0)
 
-print("平均化")
 tmp_img_grad = get_img_grad(img_org.img, tmp_pots_bfr, POTS_GRAD, tmp_h, tmp_w)
+print("平均化フィルタ")
 tmp_img_heikinka = res_heikinnka(tmp_img_grad, tmp_h, tmp_w)
 cv2.imshow("portrait", tmp_img_heikinka)
+cv2.waitKey(0)
+print("メディアンフィルタ")
+tmp_img_median = res_median(tmp_img_grad, tmp_h, tmp_w)
+cv2.imshow("portrait", tmp_img_median)
 cv2.waitKey(0)

@@ -171,11 +171,38 @@ def res_heikinnka(g, h, w):
     return a
 
 
+def res_median(g, h, w):
+    s = copy.copy(g)
+    a = copy.copy(g)
+
+    for i in range(h):
+        for j in range(w):
+            val_ary = np.zeros(9)
+            val_ary[0] = filter_additon(h, w, i - 1, j + 1, s)
+            val_ary[1] = filter_additon(h, w, i - 1, j, s)
+            val_ary[2] = filter_additon(h, w, i - 1, j - 1, s)
+            val_ary[3] = filter_additon(h, w, i, j + 1, s)
+            val_ary[4] = filter_additon(h, w, i, j, s)
+            val_ary[5] = filter_additon(h, w, i, j - 1, s)
+            val_ary[6] = filter_additon(h, w, i + 1, j + 1, s)
+            val_ary[7] = filter_additon(h, w, i + 1, j, s)
+            val_ary[8] = filter_additon(h, w, i + 1, j - 1, s)
+
+            val_ary.sort()
+            cent_val = val_ary[4]
+
+            a[i][j][0] = cent_val
+            a[i][j][1] = cent_val
+            a[i][j][2] = cent_val
+
+    return a
+
+
 def filter_additon(h, w, i, j, s):
     if i == -1 or i == h or j == -1 or j == w:
         return 0
     else:
-        return s[i - 1][j][0]
+        return s[i][j][0]
 
 
 def get_img_bin(ising, h, w):
