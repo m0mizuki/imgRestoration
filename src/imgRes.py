@@ -154,19 +154,43 @@ def res_heikinnka(g, h, w):
     for i in range(h):
         for j in range(w):
             sum = 0
-            sum += filter_additon(h, w, i - 1, j + 1, s)
-            sum += filter_additon(h, w, i - 1, j, s)
-            sum += filter_additon(h, w, i - 1, j - 1, s)
-            sum += filter_additon(h, w, i, j + 1, s)
-            sum += filter_additon(h, w, i, j, s)
-            sum += filter_additon(h, w, i, j - 1, s)
-            sum += filter_additon(h, w, i + 1, j + 1, s)
-            sum += filter_additon(h, w, i + 1, j, s)
-            sum += filter_additon(h, w, i + 1, j - 1, s)
+            sum += filter_additon(h, w, i - 1, j + 1, s) / 9
+            sum += filter_additon(h, w, i - 1, j, s) / 9
+            sum += filter_additon(h, w, i - 1, j - 1, s) / 9
+            sum += filter_additon(h, w, i, j + 1, s) / 9
+            sum += filter_additon(h, w, i, j, s) / 9
+            sum += filter_additon(h, w, i, j - 1, s) / 9
+            sum += filter_additon(h, w, i + 1, j + 1, s) / 9
+            sum += filter_additon(h, w, i + 1, j, s) / 9
+            sum += filter_additon(h, w, i + 1, j - 1, s) / 9
 
-            a[i][j][0] = int(sum / 9)
-            a[i][j][1] = int(sum / 9)
-            a[i][j][2] = int(sum / 9)
+            a[i][j][0] = int(sum)
+            a[i][j][1] = int(sum)
+            a[i][j][2] = int(sum)
+
+    return a
+
+
+def res_gaussian(g, h, w):
+    s = copy.copy(g)
+    a = copy.copy(g)
+
+    for i in range(h):
+        for j in range(w):
+            sum = 0
+            sum += filter_additon(h, w, i - 1, j + 1, s) * 1 / 16
+            sum += filter_additon(h, w, i - 1, j, s) * 2 / 16
+            sum += filter_additon(h, w, i - 1, j - 1, s) * 1 / 16
+            sum += filter_additon(h, w, i, j + 1, s) * 2 / 16
+            sum += filter_additon(h, w, i, j, s) * 4 / 16
+            sum += filter_additon(h, w, i, j - 1, s) * 2 / 16
+            sum += filter_additon(h, w, i + 1, j + 1, s) * 1 / 16
+            sum += filter_additon(h, w, i + 1, j, s) * 2 / 16
+            sum += filter_additon(h, w, i + 1, j - 1, s) * 1 / 16
+
+            a[i][j][0] = int(sum)
+            a[i][j][1] = int(sum)
+            a[i][j][2] = int(sum)
 
     return a
 
