@@ -147,6 +147,37 @@ def res_tanaka(g, h, w):
     return s
 
 
+def res_heikinnka(g, h, w):
+    s = copy.copy(g)
+    a = copy.copy(g)
+
+    for i in range(h):
+        for j in range(w):
+            sum = 0
+            sum += filter_additon(h, w, i - 1, j + 1, s)
+            sum += filter_additon(h, w, i - 1, j, s)
+            sum += filter_additon(h, w, i - 1, j - 1, s)
+            sum += filter_additon(h, w, i, j + 1, s)
+            sum += filter_additon(h, w, i, j, s)
+            sum += filter_additon(h, w, i, j - 1, s)
+            sum += filter_additon(h, w, i + 1, j + 1, s)
+            sum += filter_additon(h, w, i + 1, j, s)
+            sum += filter_additon(h, w, i + 1, j - 1, s)
+
+            a[i][j][0] = int(sum / 9)
+            a[i][j][1] = int(sum / 9)
+            a[i][j][2] = int(sum / 9)
+
+    return a
+
+
+def filter_additon(h, w, i, j, s):
+    if i == -1 or i == h or j == -1 or j == w:
+        return 0
+    else:
+        return s[i - 1][j][0]
+
+
 def get_img_bin(ising, h, w):
     img_bin = np.zeros((h, w, 3))
     for i in range(h):
