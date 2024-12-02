@@ -86,7 +86,7 @@ def res_inaba(g, h, w):
 def res_metropolis(g, h, w):
     print("開始")
     s = copy.copy(g)
-    u = copy.copy(g)
+    u = np.zeros((h, w))
     e = np.zeros((h, w))
 
     a, b, c = 0, 0, 0
@@ -116,9 +116,9 @@ def res_metropolis(g, h, w):
         # 全走査するパターン
         m = int(n / TA_POTS_Q)
         alt_i, alt_j = m % 256, int(m / 256)
-        alt_val = (TA_POTS_Q - 1) - (n % TA_POTS_Q)
-        #alt_val = n % TA_POTS_Q
-        #alt_val = int(random() * TA_POTS_Q)
+        alt_val = n % TA_POTS_Q
+        # alt_val = (TA_POTS_Q - 1) - (n % TA_POTS_Q)
+        # alt_val = int(random() * TA_POTS_Q)
 
         e_diff = 0
 
@@ -212,28 +212,36 @@ def res_metropolis(g, h, w):
             # print(ep)
             # print(e[alt_i][alt_j + 1])
 
-        if e_diff <= 0:
-            u[alt_i][alt_j] = alt_val
-            a += 1
-            aa += alt_val
-        else:
-            rev_p = math.exp(-METR_BETA * e_diff)
-            b += 1
-            bb += alt_val
-            if rev_p > random():
-                u[alt_i][alt_j] = alt_val
-                c += 1
-                cc += alt_val
+        # ほんとは前の処理全体にこのif文かける
+        if alt_val != s[alt_i][alt_j]:
+            if e_diff <= 0:
+                u[alt_i][alt_j] += alt_val
+                a += 1
+                aa += alt_val
+            else:
+                rev_p = math.exp(-METR_BETA * e_diff)
+                b += 1
+                bb += alt_val
+                if rev_p > random():
+                    u[alt_i][alt_j] += alt_val
+                    c += 1
+                    cc += alt_val
+                else:
+                    u[alt_i][alt_j] += s[alt_i][alt_j]
 
         if n % (4096 * TA_POTS_Q) == 0:
             print(int(n / (4096 * TA_POTS_Q)), "/16")
+
+    for i in range(h):
+        for j in range(w):
+            u[i][j] = int(u[i][j] / (TA_POTS_Q - 1))
 
     print("a:", a)
     print("b:", b)
     print("c:", c)
     print("aa/a:", aa / a)
     print("bb/b:", bb / b)
-    #print("cc/c:", cc / c)
+    # print("cc/c:", cc / c)
 
     return u
 
