@@ -5,6 +5,7 @@ import cv2
 from imgProc import ImgProc
 from imgRes import (
     res_tanaka,
+    res_metropolis,
     get_img_bin,
     get_img_grad,
     res_heikinnka,
@@ -13,7 +14,7 @@ from imgRes import (
 )
 
 # 定数
-POTS_GRAD = 4  # n値画像,TA_POTSに等しい
+POTS_GRAD = 8  # n値画像,TA_POTSに等しい
 
 
 path = "img/Lighthouse.bmp"
@@ -54,9 +55,10 @@ tmp_h, tmp_w = img_org.get_img_size()
 tmp_pots_bfr = img_org.get_pots(POTS_GRAD)
 cv2.imshow("portrait", get_img_grad(img_org.img, tmp_pots_bfr, POTS_GRAD, tmp_h, tmp_w))
 cv2.waitKey(0)
-tmp_pots_aft = res_tanaka(tmp_pots_bfr, tmp_h, tmp_w)
+#tmp_pots_aft = res_tanaka(tmp_pots_bfr, tmp_h, tmp_w)
+tmp_pots_aft = res_metropolis(tmp_pots_bfr, tmp_h, tmp_w)
 tmp_img_pots = get_img_grad(img_org.img, tmp_pots_aft, POTS_GRAD, tmp_h, tmp_w)
-print(tmp_img_pots)
+#print(tmp_img_pots)
 
 
 print("修復完了")

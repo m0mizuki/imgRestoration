@@ -1,6 +1,7 @@
 import math
 import copy
 import numpy as np
+from random import random
 
 import cv2
 
@@ -16,11 +17,17 @@ K = math.log((1 - Q) / Q) / 2
 THRESHOLD = 1.0  # 許容誤差
 
 # tanaka
-TA_POTS_Q = 4  # ポッツモデルの状態の数
+TA_POTS_Q = 8  # ポッツモデルの状態の数
 TA_J = 0.50
 TA_R = 3  # 反復回数
 TA_TH = 1.0  # 許容誤差
 TA_C = 1.0  # 温度の係数
+
+# metropolis
+METR_J = 1.0
+MERT_K = 2.0
+METR_BETA = 8.0
+METR_CNT = 65536
 
 
 # 引数は数値のみ取得されている(参照渡しではない)
@@ -72,6 +79,163 @@ def res_inaba(g, h, w):
                     s[i][j] = 1
 
     return s
+
+
+# 本来sum_eの差で判断するが、平均場近似でsum_e=各サイトのeの和
+# としているので、変更した画素とその4近傍のeの変化のみを比較すればよい
+def res_metropolis(g, h, w):
+    print("開始")
+    s = copy.copy(g)
+    u = copy.copy(g)
+    e = np.zeros((h, w))
+
+    a, b, c = 0, 0, 0
+    aa, bb, cc = 0.0, 0.0, 0.0
+
+    # e_sum = 0
+    for i in range(h):
+        for j in range(w):
+            sum = 0
+            if i != 0:
+                sum += diff_rate(s[i][j], s[i - 1][j], TA_POTS_Q)
+            if i != h - 1:
+                sum += diff_rate(s[i][j], s[i + 1][j], TA_POTS_Q)
+            if j != 0:
+                sum += diff_rate(s[i][j], s[i][j - 1], TA_POTS_Q)
+            if j != w - 1:
+                sum += diff_rate(s[i][j], s[i][j + 1], TA_POTS_Q)
+
+            e[i][j] = -METR_J * sum - MERT_K * diff_rate(s[i][j], g[i][j], TA_POTS_Q)
+            # e_sum += e[i][j]
+
+    for n in range(METR_CNT * TA_POTS_Q):
+        # ランダムに選んだ画素をランダムな値に変更するパターン
+        # alt_i, alt_j = int(random() * h), int(random() * w)
+        # alt_val = int(random() * TA_POTS_Q)
+
+        # 全走査するパターン
+        m = int(n / TA_POTS_Q)
+        alt_i, alt_j = m % 256, int(m / 256)
+        alt_val = (TA_POTS_Q - 1) - (n % TA_POTS_Q)
+        #alt_val = n % TA_POTS_Q
+        #alt_val = int(random() * TA_POTS_Q)
+
+        e_diff = 0
+
+        sum = 0
+        if alt_i != 0:
+            sum += diff_rate(alt_val, s[alt_i - 1][alt_j], TA_POTS_Q)
+        if alt_i != h - 1:
+            sum += diff_rate(alt_val, s[alt_i + 1][alt_j], TA_POTS_Q)
+        if alt_j != 0:
+            sum += diff_rate(alt_val, s[alt_i][alt_j - 1], TA_POTS_Q)
+        if alt_j != w - 1:
+            sum += diff_rate(alt_val, s[alt_i][alt_j + 1], TA_POTS_Q)
+        ep = -METR_J * sum - MERT_K * diff_rate(alt_val, g[alt_i][alt_j], TA_POTS_Q)
+        e_diff += ep - e[alt_i][alt_j]
+
+        if alt_i != 0:
+            sum = 0
+            if alt_i - 1 != 0:
+                sum += diff_rate(s[alt_i - 1][alt_j], s[alt_i - 2][alt_j], TA_POTS_Q)
+            if alt_i - 1 != h - 1:
+                sum += diff_rate(s[alt_i - 1][alt_j], alt_val, TA_POTS_Q)
+            if alt_j != 0:
+                sum += diff_rate(
+                    s[alt_i - 1][alt_j], s[alt_i - 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_j != w - 1:
+                sum += diff_rate(
+                    s[alt_i - 1][alt_j], s[alt_i - 1][alt_j + 1], TA_POTS_Q
+                )
+            ep = -METR_J * sum - MERT_K * diff_rate(
+                s[alt_i - 1][alt_j], g[alt_i - 1][alt_j], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i - 1][alt_j]
+
+        if alt_i != h - 1:
+            sum = 0
+            if alt_i + 1 != 0:
+                sum += diff_rate(s[alt_i + 1][alt_j], alt_val, TA_POTS_Q)
+            if alt_i + 1 != h - 1:
+                sum += diff_rate(s[alt_i + 1][alt_j], s[alt_i + 2][alt_j], TA_POTS_Q)
+            if alt_j != 0:
+                sum += diff_rate(
+                    s[alt_i + 1][alt_j], s[alt_i + 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_j != w - 1:
+                sum += diff_rate(
+                    s[alt_i + 1][alt_j], s[alt_i + 1][alt_j + 1], TA_POTS_Q
+                )
+            ep = -METR_J * sum - MERT_K * diff_rate(
+                s[alt_i + 1][alt_j], g[alt_i + 1][alt_j], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i + 1][alt_j]
+
+        if alt_j != 0:
+            sum = 0
+            if alt_i != 0:
+                sum += diff_rate(
+                    s[alt_i][alt_j - 1], s[alt_i - 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_i != h - 1:
+                sum += diff_rate(
+                    s[alt_i][alt_j - 1], s[alt_i + 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_j - 1 != 0:
+                sum += diff_rate(s[alt_i][alt_j - 1], s[alt_i][alt_j - 2], TA_POTS_Q)
+            if alt_j - 1 != w - 1:
+                sum += diff_rate(s[alt_i][alt_j - 1], alt_val, TA_POTS_Q)
+            ep = -METR_J * sum - MERT_K * diff_rate(
+                s[alt_i][alt_j - 1], g[alt_i][alt_j - 1], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i][alt_j - 1]
+
+        if alt_j != w - 1:
+            sum = 0
+            if alt_i != 0:
+                sum += diff_rate(
+                    s[alt_i][alt_j + 1], s[alt_i - 1][alt_j + 1], TA_POTS_Q
+                )
+            if alt_i != h - 1:
+                sum += diff_rate(
+                    s[alt_i][alt_j + 1], s[alt_i + 1][alt_j + 1], TA_POTS_Q
+                )
+            if alt_j + 1 != 0:
+                sum += diff_rate(s[alt_i][alt_j + 1], alt_val, TA_POTS_Q)
+            if alt_j + 1 != w - 1:
+                sum += diff_rate(s[alt_i][alt_j + 1], s[alt_i][alt_j + 2], TA_POTS_Q)
+            ep = -METR_J * sum - MERT_K * diff_rate(
+                s[alt_i][alt_j + 1], g[alt_i][alt_j + 1], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i][alt_j + 1]
+            # print(ep)
+            # print(e[alt_i][alt_j + 1])
+
+        if e_diff <= 0:
+            u[alt_i][alt_j] = alt_val
+            a += 1
+            aa += alt_val
+        else:
+            rev_p = math.exp(-METR_BETA * e_diff)
+            b += 1
+            bb += alt_val
+            if rev_p > random():
+                u[alt_i][alt_j] = alt_val
+                c += 1
+                cc += alt_val
+
+        if n % (4096 * TA_POTS_Q) == 0:
+            print(int(n / (4096 * TA_POTS_Q)), "/16")
+
+    print("a:", a)
+    print("b:", b)
+    print("c:", c)
+    print("aa/a:", aa / a)
+    print("bb/b:", bb / b)
+    #print("cc/c:", cc / c)
+
+    return u
 
 
 # s[][]:修復画像データ(ising)
@@ -263,3 +427,5 @@ def kd(a, b):
 # 階調値が近いほど1に近く、遠いほど0に近くなる関数
 def diff_rate(a, b, p_grad):
     return (p_grad - abs(a - b)) / p_grad
+    # tmp = (p_grad - abs(a - b)) / p_grad
+    # return (tmp * 2) - 1.0
