@@ -97,15 +97,15 @@ def res_metropolis(g, h, w):
         for j in range(w):
             sum = 0
             if i != 0:
-                sum += diff_rate(s[i][j], s[i - 1][j], TA_POTS_Q)
+                sum += comp_func(s[i][j], s[i - 1][j], TA_POTS_Q)
             if i != h - 1:
-                sum += diff_rate(s[i][j], s[i + 1][j], TA_POTS_Q)
+                sum += comp_func(s[i][j], s[i + 1][j], TA_POTS_Q)
             if j != 0:
-                sum += diff_rate(s[i][j], s[i][j - 1], TA_POTS_Q)
+                sum += comp_func(s[i][j], s[i][j - 1], TA_POTS_Q)
             if j != w - 1:
-                sum += diff_rate(s[i][j], s[i][j + 1], TA_POTS_Q)
+                sum += comp_func(s[i][j], s[i][j + 1], TA_POTS_Q)
 
-            e[i][j] = -METR_J * sum - MERT_K * diff_rate(s[i][j], g[i][j], TA_POTS_Q)
+            e[i][j] = -METR_J * sum - MERT_K * comp_func(s[i][j], g[i][j], TA_POTS_Q)
             # e_sum += e[i][j]
 
     for n in range(METR_CNT * TA_POTS_Q):
@@ -124,31 +124,31 @@ def res_metropolis(g, h, w):
 
         sum = 0
         if alt_i != 0:
-            sum += diff_rate(alt_val, s[alt_i - 1][alt_j], TA_POTS_Q)
+            sum += comp_func(alt_val, s[alt_i - 1][alt_j], TA_POTS_Q)
         if alt_i != h - 1:
-            sum += diff_rate(alt_val, s[alt_i + 1][alt_j], TA_POTS_Q)
+            sum += comp_func(alt_val, s[alt_i + 1][alt_j], TA_POTS_Q)
         if alt_j != 0:
-            sum += diff_rate(alt_val, s[alt_i][alt_j - 1], TA_POTS_Q)
+            sum += comp_func(alt_val, s[alt_i][alt_j - 1], TA_POTS_Q)
         if alt_j != w - 1:
-            sum += diff_rate(alt_val, s[alt_i][alt_j + 1], TA_POTS_Q)
-        ep = -METR_J * sum - MERT_K * diff_rate(alt_val, g[alt_i][alt_j], TA_POTS_Q)
+            sum += comp_func(alt_val, s[alt_i][alt_j + 1], TA_POTS_Q)
+        ep = -METR_J * sum - MERT_K * comp_func(alt_val, g[alt_i][alt_j], TA_POTS_Q)
         e_diff += ep - e[alt_i][alt_j]
 
         if alt_i != 0:
             sum = 0
             if alt_i - 1 != 0:
-                sum += diff_rate(s[alt_i - 1][alt_j], s[alt_i - 2][alt_j], TA_POTS_Q)
+                sum += comp_func(s[alt_i - 1][alt_j], s[alt_i - 2][alt_j], TA_POTS_Q)
             if alt_i - 1 != h - 1:
-                sum += diff_rate(s[alt_i - 1][alt_j], alt_val, TA_POTS_Q)
+                sum += comp_func(s[alt_i - 1][alt_j], alt_val, TA_POTS_Q)
             if alt_j != 0:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i - 1][alt_j], s[alt_i - 1][alt_j - 1], TA_POTS_Q
                 )
             if alt_j != w - 1:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i - 1][alt_j], s[alt_i - 1][alt_j + 1], TA_POTS_Q
                 )
-            ep = -METR_J * sum - MERT_K * diff_rate(
+            ep = -METR_J * sum - MERT_K * comp_func(
                 s[alt_i - 1][alt_j], g[alt_i - 1][alt_j], TA_POTS_Q
             )
             e_diff += ep - e[alt_i - 1][alt_j]
@@ -156,18 +156,18 @@ def res_metropolis(g, h, w):
         if alt_i != h - 1:
             sum = 0
             if alt_i + 1 != 0:
-                sum += diff_rate(s[alt_i + 1][alt_j], alt_val, TA_POTS_Q)
+                sum += comp_func(s[alt_i + 1][alt_j], alt_val, TA_POTS_Q)
             if alt_i + 1 != h - 1:
-                sum += diff_rate(s[alt_i + 1][alt_j], s[alt_i + 2][alt_j], TA_POTS_Q)
+                sum += comp_func(s[alt_i + 1][alt_j], s[alt_i + 2][alt_j], TA_POTS_Q)
             if alt_j != 0:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i + 1][alt_j], s[alt_i + 1][alt_j - 1], TA_POTS_Q
                 )
             if alt_j != w - 1:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i + 1][alt_j], s[alt_i + 1][alt_j + 1], TA_POTS_Q
                 )
-            ep = -METR_J * sum - MERT_K * diff_rate(
+            ep = -METR_J * sum - MERT_K * comp_func(
                 s[alt_i + 1][alt_j], g[alt_i + 1][alt_j], TA_POTS_Q
             )
             e_diff += ep - e[alt_i + 1][alt_j]
@@ -175,18 +175,18 @@ def res_metropolis(g, h, w):
         if alt_j != 0:
             sum = 0
             if alt_i != 0:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i][alt_j - 1], s[alt_i - 1][alt_j - 1], TA_POTS_Q
                 )
             if alt_i != h - 1:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i][alt_j - 1], s[alt_i + 1][alt_j - 1], TA_POTS_Q
                 )
             if alt_j - 1 != 0:
-                sum += diff_rate(s[alt_i][alt_j - 1], s[alt_i][alt_j - 2], TA_POTS_Q)
+                sum += comp_func(s[alt_i][alt_j - 1], s[alt_i][alt_j - 2], TA_POTS_Q)
             if alt_j - 1 != w - 1:
-                sum += diff_rate(s[alt_i][alt_j - 1], alt_val, TA_POTS_Q)
-            ep = -METR_J * sum - MERT_K * diff_rate(
+                sum += comp_func(s[alt_i][alt_j - 1], alt_val, TA_POTS_Q)
+            ep = -METR_J * sum - MERT_K * comp_func(
                 s[alt_i][alt_j - 1], g[alt_i][alt_j - 1], TA_POTS_Q
             )
             e_diff += ep - e[alt_i][alt_j - 1]
@@ -194,18 +194,18 @@ def res_metropolis(g, h, w):
         if alt_j != w - 1:
             sum = 0
             if alt_i != 0:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i][alt_j + 1], s[alt_i - 1][alt_j + 1], TA_POTS_Q
                 )
             if alt_i != h - 1:
-                sum += diff_rate(
+                sum += comp_func(
                     s[alt_i][alt_j + 1], s[alt_i + 1][alt_j + 1], TA_POTS_Q
                 )
             if alt_j + 1 != 0:
-                sum += diff_rate(s[alt_i][alt_j + 1], alt_val, TA_POTS_Q)
+                sum += comp_func(s[alt_i][alt_j + 1], alt_val, TA_POTS_Q)
             if alt_j + 1 != w - 1:
-                sum += diff_rate(s[alt_i][alt_j + 1], s[alt_i][alt_j + 2], TA_POTS_Q)
-            ep = -METR_J * sum - MERT_K * diff_rate(
+                sum += comp_func(s[alt_i][alt_j + 1], s[alt_i][alt_j + 2], TA_POTS_Q)
+            ep = -METR_J * sum - MERT_K * comp_func(
                 s[alt_i][alt_j + 1], g[alt_i][alt_j + 1], TA_POTS_Q
             )
             e_diff += ep - e[alt_i][alt_j + 1]
@@ -282,7 +282,7 @@ def res_tanaka(g, h, w):
                         if j != w - 1:
                             sum += a[i][j + 1][k]
                         e[k] = -kd(k, s[i][j]) - TA_J * sum
-                        # e[k] = -diff_rate(k, s[i][j], TA_POTS_Q) - TA_J * sum
+                        # e[k] = -comp_func(k, s[i][j], TA_POTS_Q) - TA_J * sum
 
                         z += math.exp(-e[k] / t)
 
@@ -427,6 +427,12 @@ def get_img_grad(img_org, pots, p_grad, h, w):
     return img_pots
 
 
+def comp_func(a, b, p_grad):
+    # return kd(a, b)
+    # return diff_rate(a, b, p_grad)
+    return inner_product(a, b, p_grad)
+
+
 # クロネッカーのデルタ
 def kd(a, b):
     return 1 if a == b else 0
@@ -435,5 +441,15 @@ def kd(a, b):
 # 階調値が近いほど1に近く、遠いほど0に近くなる関数
 def diff_rate(a, b, p_grad):
     return (p_grad - abs(a - b)) / p_grad
-    # tmp = (p_grad - abs(a - b)) / p_grad
-    # return (tmp * 2) - 1.0
+
+
+# 階調値が近いほど1に近く、遠いほど0に近くなる関数(ガウス分布)
+def diff_rate_gaussian(a, b, p_grad):
+    p = 1.0 - ((p_grad - abs(a - b)) / p_grad)
+    return math.exp(-17.3 * (p**2))
+
+
+# 階調値の差を0~180度で内積計算する(1~-1の値をとる)
+def inner_product(a, b, p_grad):
+    p = math.pi * abs(a - b) / p_grad
+    return math.cos(p)
