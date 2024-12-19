@@ -17,7 +17,7 @@ K = math.log((1 - Q) / Q) / 2
 THRESHOLD = 1.0  # 許容誤差
 
 # tanaka
-TA_POTS_Q = 8  # ポッツモデルの状態の数
+TA_POTS_Q = 4  # ポッツモデルの状態の数
 TA_J = 0.50
 TA_R = 3  # 反復回数
 TA_TH = 1.0  # 許容誤差
@@ -28,6 +28,7 @@ METR_J = 1.0
 MERT_K = 2.0
 METR_BETA = 8.0
 METR_CNT = 65536
+#METR_CNT = 4096
 
 
 # 引数は数値のみ取得されている(参照渡しではない)
@@ -115,7 +116,7 @@ def res_metropolis(g, h, w):
 
         # 全走査するパターン
         m = int(n / TA_POTS_Q)
-        alt_i, alt_j = m % 256, int(m / 256)
+        alt_i, alt_j = m % h, int(m / h)
         alt_val = n % TA_POTS_Q
         # alt_val = (TA_POTS_Q - 1) - (n % TA_POTS_Q)
         # alt_val = int(random() * TA_POTS_Q)
@@ -242,6 +243,162 @@ def res_metropolis(g, h, w):
     print("aa/a:", aa / a)
     print("bb/b:", bb / b)
     # print("cc/c:", cc / c)
+
+    return u
+
+
+def res_metropolis_col(g, h, w):
+    print("開始")
+    s = copy.copy(g)
+    u = np.zeros((h, w, 3))
+    e = np.zeros((h, w))
+
+    # e_sum = 0
+    for i in range(h):
+        for j in range(w):
+            sum = 0
+            if i != 0:
+                sum += comp_func(s[i][j], s[i - 1][j], TA_POTS_Q)
+            if i != h - 1:
+                sum += comp_func(s[i][j], s[i + 1][j], TA_POTS_Q)
+            if j != 0:
+                sum += comp_func(s[i][j], s[i][j - 1], TA_POTS_Q)
+            if j != w - 1:
+                sum += comp_func(s[i][j], s[i][j + 1], TA_POTS_Q)
+
+            e[i][j] = -METR_J * sum - MERT_K * comp_func(s[i][j], g[i][j], TA_POTS_Q)
+            # e_sum += e[i][j]
+
+    for n in range(METR_CNT * (TA_POTS_Q**3)):
+        # 全走査するパターン
+
+        m = int(n / (TA_POTS_Q**3))
+        alt_i, alt_j = m % h, int(m / h)
+        alt_val = np.zeros(3)
+        alt_val[0] = n % TA_POTS_Q
+        alt_val[1] = int(n / TA_POTS_Q) % TA_POTS_Q
+        alt_val[2] = int(n / (TA_POTS_Q**2)) % TA_POTS_Q
+        # alt_val = (TA_POTS_Q - 1) - (n % TA_POTS_Q)
+        # alt_val = int(random() * TA_POTS_Q)
+
+        e_diff = 0
+
+        sum = 0
+        if alt_i != 0:
+            sum += comp_func(alt_val, s[alt_i - 1][alt_j], TA_POTS_Q)
+        if alt_i != h - 1:
+            sum += comp_func(alt_val, s[alt_i + 1][alt_j], TA_POTS_Q)
+        if alt_j != 0:
+            sum += comp_func(alt_val, s[alt_i][alt_j - 1], TA_POTS_Q)
+        if alt_j != w - 1:
+            sum += comp_func(alt_val, s[alt_i][alt_j + 1], TA_POTS_Q)
+        ep = -METR_J * sum - MERT_K * comp_func(alt_val, g[alt_i][alt_j], TA_POTS_Q)
+        e_diff += ep - e[alt_i][alt_j]
+
+        if alt_i != 0:
+            sum = 0
+            if alt_i - 1 != 0:
+                sum += comp_func(s[alt_i - 1][alt_j], s[alt_i - 2][alt_j], TA_POTS_Q)
+            if alt_i - 1 != h - 1:
+                sum += comp_func(s[alt_i - 1][alt_j], alt_val, TA_POTS_Q)
+            if alt_j != 0:
+                sum += comp_func(
+                    s[alt_i - 1][alt_j], s[alt_i - 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_j != w - 1:
+                sum += comp_func(
+                    s[alt_i - 1][alt_j], s[alt_i - 1][alt_j + 1], TA_POTS_Q
+                )
+            ep = -METR_J * sum - MERT_K * comp_func(
+                s[alt_i - 1][alt_j], g[alt_i - 1][alt_j], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i - 1][alt_j]
+
+        if alt_i != h - 1:
+            sum = 0
+            if alt_i + 1 != 0:
+                sum += comp_func(s[alt_i + 1][alt_j], alt_val, TA_POTS_Q)
+            if alt_i + 1 != h - 1:
+                sum += comp_func(s[alt_i + 1][alt_j], s[alt_i + 2][alt_j], TA_POTS_Q)
+            if alt_j != 0:
+                sum += comp_func(
+                    s[alt_i + 1][alt_j], s[alt_i + 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_j != w - 1:
+                sum += comp_func(
+                    s[alt_i + 1][alt_j], s[alt_i + 1][alt_j + 1], TA_POTS_Q
+                )
+            ep = -METR_J * sum - MERT_K * comp_func(
+                s[alt_i + 1][alt_j], g[alt_i + 1][alt_j], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i + 1][alt_j]
+
+        if alt_j != 0:
+            sum = 0
+            if alt_i != 0:
+                sum += comp_func(
+                    s[alt_i][alt_j - 1], s[alt_i - 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_i != h - 1:
+                sum += comp_func(
+                    s[alt_i][alt_j - 1], s[alt_i + 1][alt_j - 1], TA_POTS_Q
+                )
+            if alt_j - 1 != 0:
+                sum += comp_func(s[alt_i][alt_j - 1], s[alt_i][alt_j - 2], TA_POTS_Q)
+            if alt_j - 1 != w - 1:
+                sum += comp_func(s[alt_i][alt_j - 1], alt_val, TA_POTS_Q)
+            ep = -METR_J * sum - MERT_K * comp_func(
+                s[alt_i][alt_j - 1], g[alt_i][alt_j - 1], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i][alt_j - 1]
+
+        if alt_j != w - 1:
+            sum = 0
+            if alt_i != 0:
+                sum += comp_func(
+                    s[alt_i][alt_j + 1], s[alt_i - 1][alt_j + 1], TA_POTS_Q
+                )
+            if alt_i != h - 1:
+                sum += comp_func(
+                    s[alt_i][alt_j + 1], s[alt_i + 1][alt_j + 1], TA_POTS_Q
+                )
+            if alt_j + 1 != 0:
+                sum += comp_func(s[alt_i][alt_j + 1], alt_val, TA_POTS_Q)
+            if alt_j + 1 != w - 1:
+                sum += comp_func(s[alt_i][alt_j + 1], s[alt_i][alt_j + 2], TA_POTS_Q)
+            ep = -METR_J * sum - MERT_K * comp_func(
+                s[alt_i][alt_j + 1], g[alt_i][alt_j + 1], TA_POTS_Q
+            )
+            e_diff += ep - e[alt_i][alt_j + 1]
+            # print(ep)
+            # print(e[alt_i][alt_j + 1])
+
+        # ほんとは前の処理全体にこのif文かける
+        # if alt_val[n % 3] != s[alt_i][alt_j][n % 3]:
+
+        if e_diff <= 0:
+            u[alt_i][alt_j][0] += alt_val[0]
+            u[alt_i][alt_j][1] += alt_val[1]
+            u[alt_i][alt_j][2] += alt_val[2]
+        else:
+            rev_p = math.exp(-METR_BETA * e_diff)
+            if rev_p > random():
+                u[alt_i][alt_j][0] += alt_val[0]
+                u[alt_i][alt_j][1] += alt_val[1]
+                u[alt_i][alt_j][2] += alt_val[2]
+            else:
+                u[alt_i][alt_j][0] += s[alt_i][alt_j][0]
+                u[alt_i][alt_j][1] += s[alt_i][alt_j][1]
+                u[alt_i][alt_j][2] += s[alt_i][alt_j][2]
+
+        if n % ((METR_CNT * (TA_POTS_Q**3)) / 64) == 0:
+            print(int(n / ((METR_CNT * (TA_POTS_Q**3)) / 64)), "/64")
+
+    for i in range(h):
+        for j in range(w):
+            u[i][j][0] = int(u[i][j][0] / (TA_POTS_Q**3))
+            u[i][j][1] = int(u[i][j][1] / (TA_POTS_Q**3))
+            u[i][j][2] = int(u[i][j][2] / (TA_POTS_Q**3))
 
     return u
 
@@ -427,10 +584,22 @@ def get_img_grad(img_org, pots, p_grad, h, w):
     return img_pots
 
 
+def get_img_colgrad(img_org, pots, p_grad, h, w):
+    img_pots = copy.copy(img_org)
+    for i in range(h):
+        for j in range(w):
+            diff = 256 / p_grad
+            img_pots[i][j][0] = int((pots[i][j][0] + 0.5) * diff) - 1
+            img_pots[i][j][1] = int((pots[i][j][1] + 0.5) * diff) - 1
+            img_pots[i][j][2] = int((pots[i][j][2] + 0.5) * diff) - 1
+    return img_pots
+
+
 def comp_func(a, b, p_grad):
     # return kd(a, b)
     # return diff_rate(a, b, p_grad)
-    return inner_product(a, b, p_grad)
+    # return inner_product(a, b, p_grad)
+    return diff_rate_col(a, b, p_grad)
 
 
 # クロネッカーのデルタ
@@ -453,3 +622,14 @@ def diff_rate_gaussian(a, b, p_grad):
 def inner_product(a, b, p_grad):
     p = math.pi * abs(a - b) / p_grad
     return math.cos(p)
+
+
+# (カラー)階調値の差が近いほど1に近く、遠いほど0に近くなる関数
+def diff_rate_col(a, b, p_grad):
+    db = abs(a[0] - b[0]) * 256 / p_grad
+    dg = abs(a[1] - b[1]) * 256 / p_grad
+    dr = abs(a[2] - b[2]) * 256 / p_grad
+    dc = math.sqrt(2 * (dr**2) + 4 * (dg**2) + 3 * (db**2))
+    # 768<-最大の差
+    p = 1.0 - (dc / 768)
+    return p
