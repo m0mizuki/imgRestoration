@@ -19,7 +19,6 @@ from imgRes import (
 POTS_GRAD = 4  # n値画像,TA_POTSに等しい
 
 path = "img/parrots.jpg"
-#path = "img/tehyonOrg.jpg"
 # path = "img/Lighthouse.bmp"
 # path = "img/8_8.bmp"
 
